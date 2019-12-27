@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./server",
+    "rootDir": "./server",
+    "target": "es2017",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": [
+      "esnext"
+    ],
+    "esModuleInterop": true,
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "downlevelIteration": true,
+    "sourceMap": false,
+    "outDir": "dist",
+    "incremental": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "server"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
