@@ -1,0 +1,65 @@
+._g-container {
+  width: 60%;
+  margin: 100px auto;
+
+  ._g-tab-item a {
+    position: relative;
+
+    &:before {
+      position: absolute;
+      content: '';
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      cursor: pointer;
+    }
+  }
+
+  .hero-body {
+    padding: 3rem;
+
+    .tabs ul {
+      border-bottom: 1px solid #dbdbdb;
+    }
+
+    ._g-input .required {
+      &:after {
+        content: '*';
+        margin-left: 2px;
+        font-size: 16px;
+        color: red;
+      }
+    }
+
+    ._g-radio {
+      margin-right: 30px;
+
+      span {
+        margin-left: 10px;
+      }
+    }
+
+    ._g-footer {
+      margin-top: 40px;
+
+      .control {
+        &:not(:last-child) {
+          margin-right: 3rem;
+        }
+      }
+
+      .button {
+        width: 85px;
+      }
+    }
+  }
+
+  .help {
+    font-size: 14px;
+  }
+
+  ._g-table {
+    width: 100%;
+  }
+}

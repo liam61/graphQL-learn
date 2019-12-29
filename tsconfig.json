@@ -1,13 +1,22 @@
 {
   "compilerOptions": {
-    "baseUrl": "./server",
-    "rootDir": "./server",
+    "baseUrl": "./",
+    "rootDir": "./",
+    "paths": {
+      "~": ["*"],
+      "~/app/*": ["client/app/*"],
+      "~/components/*": ["client/components/*"],
+      "~/graphql/*": ["client/graphql/*"],
+      "~/models/*": ["server/models/*"]
+    },
     "target": "es2017",
     "module": "commonjs",
     "moduleResolution": "node",
     "lib": [
+      "dom",
       "esnext"
     ],
+    "jsx": "react",
     "esModuleInterop": true,
     "declaration": true,
     "removeComments": true,
@@ -20,6 +29,7 @@
     "allowSyntheticDefaultImports": true
   },
   "include": [
+    "client",
     "server"
   ],
   "exclude": [

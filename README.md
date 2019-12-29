@@ -1,7 +1,5 @@
 # graphQL-learn
 
-graphQL learn
-
 ## usage
 
 1. query
@@ -47,7 +45,7 @@ query {
 2. mutation
 
 ```js
-// 增加用户
+// 增加 user
 mutation {
   addUser(payload: {
     name: "lawler"
@@ -62,19 +60,18 @@ mutation {
   }
 }
 
-// 删除用户
+// 删除 user
 mutation {
   deleteUser(name: "lawler") {
     result
   }
 }
 
-// 更新用户
+// 更新 user
 mutation {
   updateUser(name: "lawler", payload: {
     name: "natalie"
     gender: FEMALE
-    age: 20
   }) {
     result
     data {
@@ -86,10 +83,12 @@ mutation {
 
 ## TODOs
 
-- [x] 搭建 graph server，连接 mongodb 数据库
+- [x] 搭建 graphql server，连接 mongodb
 
 - [x] 实现 user 的增删查改 + 登录
 
-- [] apollo client + react hooks
+- [x] apollo client + react hooks
 
-- [] graphql 语法 generate TS
+- [ ] 父组件使用 mobx 管理受控的 input 子组件
+
+- [ ] graphql 语法 generate ts
