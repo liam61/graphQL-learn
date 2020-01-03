@@ -1,6 +1,7 @@
 import { ConnectionOptions, connect, connection } from 'mongoose'
+import { dbName, host } from 'common/const'
 
-const connectStr = `mongodb://localhost:27017/graphql-learn`
+const connectStr = `mongodb://${host}:27017/${dbName}`
 
 const defaultOpts: ConnectionOptions = {
   useNewUrlParser: true,

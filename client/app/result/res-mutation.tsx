@@ -2,16 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { useMutation } from '@apollo/react-hooks'
 import { addUser, updateUser, deleteUser } from '~/graphql/user'
 import { TAB } from '~/components/tabs'
-import {
-  AddResult,
-  Payload,
-  UpdateResult,
-  UpdateType,
-  AddPayload,
-  DeleteResult,
-  UserType,
-} from 'common/types'
-import { ResultProps, FormDataType } from 'client/types'
+import { Notification } from '~/components/notification'
+import { AddResult, Payload, UpdateResult, UpdateType, DeleteResult } from 'common/types'
+import { ResultProps, SerializedValue, COLOR } from 'client/types'
 
 interface ResMutationProps extends ResultProps {
   type: TAB
@@ -19,9 +12,8 @@ interface ResMutationProps extends ResultProps {
 
 export function ResMutation(props: ResMutationProps) {
   const { formData, type, onBack } = props
-  const [user, setUser] = useState<UserType>(null)
-
-  const [add] = useMutation<{ addUser: AddResult }, Payload<FormDataType>>(addUser)
+  const [isSuccess, setSuccess] = useState<boolean>(undefined)
+  const [add] = useMutation<{ addUser: AddResult }, Payload<SerializedValue>>(addUser)
   const [update] = useMutation<{ updateUser: UpdateResult }, UpdateType>(updateUser)
   const [_delete] = useMutation<{ deleteUser: DeleteResult }, { name: string }>(deleteUser)
 
@@ -33,8 +25,7 @@ export function ResMutation(props: ResMutationProps) {
             payload: formData,
           },
         }).then(({ data }) => {
-          console.log(data)
-          setUser(data.addUser.data)
+          setSuccess(data.addUser.result)
         })
         break
       case TAB.UPDATE:
@@ -45,8 +36,7 @@ export function ResMutation(props: ResMutationProps) {
             payload: rest,
           },
         }).then(({ data }) => {
-          console.log(data)
-          setUser(data.updateUser.data)
+          setSuccess(data.updateUser.result)
         })
         break
       case TAB.DELETE:
@@ -56,17 +46,17 @@ export function ResMutation(props: ResMutationProps) {
             name: name + '',
           },
         }).then(({ data }) => {
-          console.log(data)
+          setSuccess(data.deleteUser.result)
         })
+        break
     }
   }, [type])
 
-  if (!user) return <div>Error!</div>
+  const notiProps = {
+    loading: isSuccess == undefined,
+    info: isSuccess ? 'Operate success!' : 'Error!',
+    color: isSuccess ? COLOR.INFO : COLOR.DANGER,
+  }
 
-  return (
-    <div className="notification">
-      <button className="delete" onClick={onBack} />
-      <div>operate success!</div>
-    </div>
-  )
+  return <Notification onBack={onBack} {...notiProps} />
 }

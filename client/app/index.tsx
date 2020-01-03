@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react'
 import { Tabs, TAB } from '~/components/tabs'
 import { Footer } from '~/components/footer'
-import { TabRef, FormDataType } from 'client/types'
+import { TabRef, SerializedValue } from 'client/types'
 import { TabQuery } from './tab/tab-query'
 import { TabLogin } from './tab/tab-login'
 import { TabAdd } from './tab/tab-add'
@@ -19,10 +19,10 @@ const tabData = [
   { id: TAB.DELETE, label: 'delete', icon: 'fa-trash-o' },
 ]
 
-export default function HomePage() {
+export default function Home() {
   const [tab, setTab] = useState<TAB>(TAB.QUERY)
   const [isSubmit, setIsSubmit] = useState(false)
-  const [formData, setFormData] = useState<FormDataType>({})
+  const [formData, setFormData] = useState<SerializedValue>({})
   const tabRef = useRef<TabRef>()
 
   const handleChange = useCallback(
@@ -35,8 +35,9 @@ export default function HomePage() {
   )
 
   const handleSubmit = useCallback(() => {
-    const { values } = tabRef.current
-    setFormData(values)
+    const valuesOrError = tabRef.current.onSerialize()
+    if (valuesOrError === false) return
+    setFormData(valuesOrError)
     setIsSubmit(true)
   }, [tabRef.current])
 
@@ -56,15 +57,19 @@ export default function HomePage() {
   }
 
   const handleBack = useCallback(() => setIsSubmit(false), [])
+  const resProps = {
+    formData,
+    onBack: handleBack,
+  }
 
   const renderRes = () => {
     switch (tab) {
       case TAB.QUERY:
-        return <ResQuery formData={formData} onBack={handleBack} />
+        return <ResQuery {...resProps} />
       case TAB.LOGIN:
-        return <ResLogin formData={formData} onBack={handleBack} />
+        return <ResLogin {...resProps} />
       default:
-        return <ResMutation type={tab} formData={formData} onBack={handleBack} />
+        return <ResMutation type={tab} {...resProps} />
     }
   }
 

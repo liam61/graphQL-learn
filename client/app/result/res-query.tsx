@@ -1,11 +1,31 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import { Gender } from '~/components/gender'
 import { getUserList } from '~/graphql/user'
 import { Filter, Payload, QueryResult } from 'common/types'
-import { ResultProps } from 'client/types'
+import { ResultProps, COLOR } from 'client/types'
+import { isEmpty } from 'client/utils'
+import { Notification } from '~/components/notification'
 
 const userInfo = ['Name', 'Age', 'Gender']
+
+const title = (
+  <tr>
+    <th>User</th>
+    {userInfo.map(info => (
+      <th key={info}>{info}</th>
+    ))}
+  </tr>
+)
+
+const noUser = (
+  <tr>
+    <th>no user</th>
+    {userInfo.map((_, i) => (
+      <th key={i}>-</th>
+    ))}
+  </tr>
+)
 
 interface ResQueryProps extends ResultProps {}
 
@@ -17,35 +37,18 @@ export function ResQuery(props: ResQueryProps) {
       variables: {
         payload: formData,
       },
+      fetchPolicy: 'network-only',
     },
   )
 
-  const title = useMemo(
-    () => (
-      <tr>
-        <th>User</th>
-        {userInfo.map(info => (
-          <th key={info}>{info}</th>
-        ))}
-      </tr>
-    ),
-    [],
-  )
-
-  const noUser = useMemo(
-    () => (
-      <tr>
-        <th>-</th>
-        <td>no user</td>
-        <td>-</td>
-        <td>-</td>
-      </tr>
-    ),
-    [],
-  )
-
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>Error! {error.message}</div>
+  if (loading || error) {
+    const notiProps = {
+      loading,
+      info: error && <div>Error! {error.message}</div>,
+      color: error && COLOR.DANGER,
+    }
+    return <Notification onBack={onBack} {...notiProps} />
+  }
 
   return (
     <>
@@ -60,7 +63,7 @@ export function ResQuery(props: ResQueryProps) {
                   <tr key={name}>
                     <th>{i + 1}</th>
                     <td>{name}</td>
-                    <td>{age ? age : 'unknown'}</td>
+                    <td>{!isEmpty(age) ? age : 'unknown'}</td>
                     <td>{gender ? <Gender defaultValue={gender} disabled /> : 'unknown'}</td>
                   </tr>
                 )

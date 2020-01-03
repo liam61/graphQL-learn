@@ -12,7 +12,7 @@ import {
   AddResult,
   DeleteResult,
   UpdateResult,
-} from './types'
+} from 'common/types'
 
 export const typeDefs = gql`
   type User {
@@ -89,14 +89,10 @@ export const typeDefs = gql`
 
 export const resolvers = {
   Query: {
-    async userList(
-      _: unknown,
-      { payload }: Payload<Filter>,
-      _context: unknown,
-    ): Promise<QueryResult> {
+    async userList(_: unknown, { payload }: Payload<Filter>): Promise<QueryResult> {
       // 实际上 graphql 控制了返回值，如果 QueryResult 没有定义 password，就算从数据库取出来，获取时也会报错
-      const res = await User.find(payload, '-password')
-      return { result: res && !!res.length, data: res }
+      const res = (await User.find(payload, '-password')) || []
+      return { result: !!res.length, data: res }
     },
     async login(_: unknown, { payload }: Payload<LoginPayload>): Promise<LoginResult> {
       const res = await User.findOne(payload, '-password')
@@ -115,11 +111,11 @@ export const resolvers = {
     async updateUser(_: unknown, { name, payload }: UpdateType): Promise<UpdateResult> {
       if (!payload || !Object.keys(payload).length) return { result: false }
       const res = await User.findOneAndUpdate({ name }, payload)
-      let latestUser: UserType | null = null
+      let newUser: UserType = null
       if (res) {
-        latestUser = await User.findOne({ name: payload.name || name }, '-password')
+        newUser = await User.findOne({ name: payload.name || name }, '-password')
       }
-      return { result: !!res, data: latestUser }
+      return { result: !!res, data: newUser }
     },
   },
 }

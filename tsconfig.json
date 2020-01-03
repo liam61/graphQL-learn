@@ -17,6 +17,9 @@
       "esnext"
     ],
     "jsx": "react",
+    "noUnusedLocals": true,
+    "noImplicitAny": false,
+    "noImplicitThis": true,
     "esModuleInterop": true,
     "declaration": true,
     "removeComments": true,

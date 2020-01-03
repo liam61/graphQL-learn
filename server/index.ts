@@ -3,7 +3,7 @@ import { ApolloServer } from 'apollo-server-express'
 import bodyParser from 'body-parser'
 import { typeDefs, resolvers } from './models/user'
 import { initMongoClient } from './db'
-import { serverPort, graphqlPath, host } from './../common/index'
+import { serverPort, graphqlPath, host } from 'common/const'
 
 const app = express()
 

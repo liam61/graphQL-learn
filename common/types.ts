@@ -8,15 +8,15 @@ export interface BaseResult {
   result: boolean
 }
 
-export enum GENDER {
-  MALE = 'MALE',
-  FEMALE = 'FEMALE',
-}
-
 export interface UserType extends Document {
   name: string
   gender?: GENDER
   age?: number
+}
+
+export enum GENDER {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
 }
 
 export interface Filter {

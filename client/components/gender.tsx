@@ -7,34 +7,46 @@ import React, {
   useImperativeHandle,
   useRef,
 } from 'react'
-import { FieldRef } from 'client/types'
+import { FieldRef, FieldType } from 'client/types'
 import { GENDER } from 'common/types'
+import { isEmpty } from 'client/utils'
+
+export type GenderType = 'MALE' | 'FEMALE'
 
 export interface GenderProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'onChange'> {
   label?: string
   requireInfo?: string
-  defaultValue?: GENDER
+  value?: GenderType | undefined
+  onChange?: (payload: Partial<FieldType>, name: string | undefined) => void
+  defaultValue?: GenderType | undefined
+  help?: boolean
 }
 
 export const Gender = forwardRef<FieldRef, GenderProps>(function _Gender(props, ref) {
   const {
+    value,
+    onChange,
+    defaultValue,
+    name,
     label,
     required,
     requireInfo = 'this field is required',
+    help,
     onFocus,
-    defaultValue,
     disabled = false,
     ...restProps
   } = props
-  const [gender, setGender] = useState<GENDER>(defaultValue)
+  const hasValueProp = props.hasOwnProperty('value')
+  const [gender, setGender] = useState(hasValueProp ? '' : defaultValue)
   const [touched, setTouched] = useState(false)
   const maleRef = useRef<HTMLInputElement>()
   const femaleRef = useRef<HTMLInputElement>()
 
   const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
     const { id } = ev.target.dataset
-    !disabled && setGender(id as GENDER)
+    !hasValueProp && !disabled && setGender(id as GENDER)
+    onChange && onChange({ value: id }, name)
   }
 
   const handleFocus = (ev: FocusEvent<HTMLInputElement>) => {
@@ -42,12 +54,21 @@ export const Gender = forwardRef<FieldRef, GenderProps>(function _Gender(props, 
     !touched && setTouched(true)
   }
 
+  // for uncontrolled
   useImperativeHandle(ref, () => ({
-    onFocus: () => maleRef.current && maleRef.current.focus(),
-    onClear: () => setGender(undefined),
-    value: gender,
-    validate: !required || !!gender,
+    onClear: () => setGender(''),
+    onValidate: () => {
+      const validate = !required || !!gender
+      if (!validate) {
+        maleRef.current && maleRef.current.focus()
+        return false
+      }
+      return gender
+    },
   }))
+
+  const finalValue = hasValueProp ? value : gender
+  const showInfo = help || (required && !disabled && touched && isEmpty(finalValue))
 
   return (
     <div className="field">
@@ -59,7 +80,7 @@ export const Gender = forwardRef<FieldRef, GenderProps>(function _Gender(props, 
             ref={maleRef}
             data-id={GENDER.MALE}
             type="radio"
-            checked={gender === GENDER.MALE}
+            checked={finalValue === GENDER.MALE}
             onChange={handleChange}
             onFocus={handleFocus}
             disabled={disabled}
@@ -72,16 +93,14 @@ export const Gender = forwardRef<FieldRef, GenderProps>(function _Gender(props, 
             ref={femaleRef}
             data-id={GENDER.FEMALE}
             type="radio"
-            checked={gender === GENDER.FEMALE}
+            checked={finalValue === GENDER.FEMALE}
             onChange={handleChange}
             disabled={disabled}
           />
           <span>Female</span>
         </label>
       </div>
-      {required && !disabled && touched && !gender && (
-        <p className="help is-danger">{requireInfo}</p>
-      )}
+      {showInfo && <p className="help is-danger">{requireInfo}</p>}
     </div>
   )
 })

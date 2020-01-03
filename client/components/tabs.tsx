@@ -27,7 +27,6 @@ export function Tabs(props: TabProps) {
   const handleClick = (ev: any) => {
     const { nodeName, dataset } = ev.target
     if (nodeName.toLowerCase() !== 'a') return
-    console.log(onClick)
     onClick && onClick(+dataset.id)
   }
 

@@ -17,8 +17,8 @@ export interface FooterProps {
 
 export function Footer(props: FooterProps) {
   const {
-    okText = '确定',
-    cancelText = '取消',
+    okText = 'Ok',
+    cancelText = 'Cancel',
     onOk,
     onCancel,
     position = FooterPosition.CENTER,

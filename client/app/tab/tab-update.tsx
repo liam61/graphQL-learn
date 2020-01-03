@@ -1,65 +1,60 @@
-import React, { useRef, forwardRef, useImperativeHandle } from 'react'
-import { FieldRef, TabRef, emptyTabRef } from 'client/types'
-import { Input, InputType } from '~/components/input'
+import React, { forwardRef, useImperativeHandle } from 'react'
+import { TabRef, FieldType } from 'client/types'
+import { Input } from '~/components/input'
 import { Gender } from '~/components/gender'
+import { useMobx, generateTabRefHandler, isEmpty } from 'client/utils'
+import { useObserver } from 'mobx-react'
 
 export const TabUpdate = forwardRef<TabRef>(function _TabUpdate(_, ref) {
-  const nameRef = useRef<FieldRef>()
-  const newNameRef = useRef<FieldRef>()
-  const ageRef = useRef<FieldRef>()
-  const genderRef = useRef<FieldRef>()
+  const store = useMobx({
+    prevName: { name: 'prevName', value: '', required: true },
+    name: { name: 'name', value: '' },
+    age: { name: 'age', value: '' },
+    gender: { name: 'gender', value: '' },
+  })
 
   useImperativeHandle(
     ref,
     () => {
-      if (!nameRef.current) return emptyTabRef
-      const [n, nn, a, g] = [nameRef.current, newNameRef.current, ageRef.current, genderRef.current]
-
-      return {
-        onClear: () => {
-          n.onClear()
-          nn.onClear()
-          a.onClear()
-          g.onClear()
-        },
-        values: {
-          prevName: n.value,
-          name: nn.value,
-          age: a.value,
-          gender: g.value,
-        },
-        validate: n.validate && nn.validate && a.validate && g.validate,
-      }
+      const { data, change } = store
+      return generateTabRefHandler(data, change)
     },
-    [nameRef.current, newNameRef.current, ageRef.current, genderRef.current],
+    [store.data],
   )
 
-  return (
-    <div className="container">
-      <Input
-        ref={nameRef}
-        name="prevName"
-        label="Name"
-        required
-        maxLength={15}
-        placeholder="please input name, max length is 15"
-      />
-      <Input
-        ref={newNameRef}
-        name="name"
-        label="newName"
-        maxLength={15}
-        placeholder="please input new name, max length is 15"
-      />
-      <Input
-        ref={ageRef}
-        name="age"
-        label="Age"
-        type={InputType.NUMBER}
-        max={1000}
-        placeholder="please input age, max is 1000"
-      />
-      <Gender name="gender" ref={genderRef} label="Gender" />
-    </div>
-  )
+  return useObserver(() => {
+    const { data, change } = store
+    const handleChange = (payload: Partial<FieldType>, name: string) => {
+      const { required } = data[name]
+      change(Object.assign(payload, { help: required && isEmpty(payload.value) }), name)
+    }
+
+    return (
+      <div className="container">
+        <Input
+          label="Name"
+          maxLength={15}
+          placeholder="please input name, max length is 15"
+          onChange={handleChange}
+          {...data.prevName}
+        />
+        <Input
+          label="newName"
+          maxLength={15}
+          placeholder="please input new name, max length is 15"
+          onChange={handleChange}
+          {...data.name}
+        />
+        <Input
+          label="Age"
+          type="number"
+          max={1000}
+          placeholder="please input age, max is 1000"
+          onChange={handleChange}
+          {...data.age}
+        />
+        <Gender label="Gender" onChange={handleChange} {...data.gender} />
+      </div>
+    )
+  })
 })

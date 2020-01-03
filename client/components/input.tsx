@@ -7,52 +7,70 @@ import React, {
   useRef,
 } from 'react'
 import classnames from 'classnames'
-import { FieldRef, Color } from 'client/types'
+import { FieldRef, FieldType, ColorType } from 'client/types'
+import { isEmpty } from 'client/utils'
 
-export enum InputType {
-  TEXT = 'text',
-  NUMBER = 'number',
-  PASSWORD = 'password',
-}
+export type InputType = 'text' | 'number' | 'password'
 
-export interface InputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'onChange'> {
+export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+  value?: string | number // for controlled
+  onChange?: (payload: Partial<FieldType>, name: string | undefined) => void
+  defaultValue?: string | number // for uncontrolled
   label?: string
-  color?: Color
+  color?: ColorType
   requireInfo?: string
   type?: InputType
+  help?: boolean // custom show help info, for controlled
 }
 
 export const Input = forwardRef<FieldRef, InputProps>(function _Input(props, ref) {
   const {
+    value,
+    onChange,
+    defaultValue = '',
+    name,
     label,
-    color = Color.DEFAULT,
     required,
     requireInfo = 'this field is required',
-    type = InputType.TEXT,
+    help,
+    color,
+    type = 'text',
     max,
     ...restProps
   } = props
-  const [value, setValue] = useState<string>('')
+  const hasValueProp = props.hasOwnProperty('value')
+  const isNumberType = type === 'number'
+  const [_value, setValue] = useState<string | number>(hasValueProp ? '' : defaultValue)
   const [touched, setTouched] = useState(false)
   const inputRef = useRef<HTMLInputElement>()
-  const isNumberType = type === InputType.NUMBER
 
   const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
     !touched && setTouched(true)
-    const { value: v } = ev.target
-    if (type === InputType.NUMBER && (isNaN(+v) || (max && +v > max))) return
-    setValue(v)
+    let v = ev.target.value as any
+    if (isNumberType) {
+      // 清空则不转为 number
+      v.length && (v = +v)
+      if (isNaN(v) || (max && v > max)) return
+    }
+    !hasValueProp && setValue(v)
+    onChange && onChange({ value: v }, name)
   }
 
+  // for uncontrolled
   useImperativeHandle(ref, () => ({
-    onFocus: () => inputRef.current && inputRef.current.focus(),
     onClear: () => setValue(''),
-    value: !isNumberType ? value : +value,
-    validate: !required || !!value,
+    onValidate: () => {
+      const validate = !required || !!_value
+      if (!validate) {
+        inputRef.current && inputRef.current.focus()
+        return false
+      }
+      return !isNumberType ? _value : +_value
+    },
   }))
 
-  const showInfo = required && touched && !value
+  const finalValue = hasValueProp ? value : _value
+  const showInfo = help || (required && touched && isEmpty(finalValue))
 
   return (
     <div className="field">
@@ -60,9 +78,10 @@ export const Input = forwardRef<FieldRef, InputProps>(function _Input(props, ref
       <div className="control">
         <input
           {...restProps}
-          type={!isNumberType ? type : InputType.TEXT}
-          className={classnames('input', showInfo ? Color.DANGER : color)}
-          value={value}
+          type={!isNumberType ? type : 'text'}
+          name={name}
+          className={classnames('input', showInfo ? 'is-danger' : color)}
+          value={finalValue}
           onChange={handleChange}
           required={required}
         />

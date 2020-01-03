@@ -1,37 +1,41 @@
-import React, { useRef, forwardRef, useImperativeHandle } from 'react'
-import { FieldRef, TabRef, emptyTabRef } from 'client/types'
+import React, { forwardRef, useImperativeHandle } from 'react'
+import { TabRef, FieldType } from 'client/types'
 import { Input } from '~/components/input'
+import { useMobx, generateTabRefHandler, isEmpty } from 'client/utils'
+import { useObserver } from 'mobx-react'
 
 export const TabDelete = forwardRef<TabRef>(function _TabDelete(_, ref) {
-  const nameRef = useRef<FieldRef>()
+  const store = useMobx({
+    name: { name: 'name', value: '', required: true },
+  })
 
   useImperativeHandle(
     ref,
     () => {
-      if (!nameRef.current) return emptyTabRef
-      const n = nameRef.current
-      return {
-        onClear: () => {
-          n.onClear()
-        },
-        values: {
-          name: n.value,
-        },
-        validate: n.validate,
-      }
+      const { data, change } = store
+      return generateTabRefHandler(data, change)
     },
-    [nameRef.current],
+    [store.data],
   )
 
-  return (
-    <div className="container">
-      <Input
-        ref={nameRef}
-        label="Name"
-        required
-        maxLength={15}
-        placeholder="please input name, max length is 15"
-      />
-    </div>
-  )
+  return useObserver(() => {
+    const { data, change } = store
+    const handleChange = (payload: Partial<FieldType>, name: string) => {
+      const { required } = data[name]
+      change(Object.assign(payload, { help: required && isEmpty(payload.value) }), name)
+    }
+
+    return (
+      <div className="container">
+        <Input
+          label="Name"
+          required
+          maxLength={15}
+          placeholder="please input name, max length is 15"
+          onChange={handleChange}
+          {...data.name}
+        />
+      </div>
+    )
+  })
 })

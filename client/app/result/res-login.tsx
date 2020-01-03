@@ -1,30 +1,45 @@
 import React from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import { userLogin } from '~/graphql/user'
-import { ResultProps, FormDataType } from 'client/types'
-import { Payload, LoginResult } from 'common/types'
+import { ResultProps, COLOR } from 'client/types'
+import { Notification } from '~/components/notification'
+import { Payload, LoginResult, LoginPayload } from 'common/types'
 
 interface ResLoginProps extends ResultProps {}
 
 export function ResLogin(props: ResLoginProps) {
   const { formData, onBack } = props
-  const { loading, data, error } = useQuery<{ login: LoginResult }, Payload<FormDataType>>(
+  const { loading, data, error } = useQuery<{ login: LoginResult }, Payload<LoginPayload>>(
     userLogin,
     {
       variables: {
-        payload: formData,
+        payload: formData as any,
       },
+      fetchPolicy: 'network-only',
     },
   )
 
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>Error! {error.message}</div>
+  if (loading || error) {
+    const notiProps = {
+      loading,
+      info: error && <div>Error! {error.message}</div>,
+      color: error && COLOR.DANGER,
+    }
+    return <Notification onBack={onBack} {...notiProps} />
+  }
 
-  return (
-    <div className="notification is-info">
-      <button className="delete" onClick={onBack} />
-      <strong>login success!</strong>
-      {data && <div>{`hi, ${data.login.data.name}`}</div>}
-    </div>
-  )
+  const { result, data: user } = data.login
+  const notiFinalProps = {
+    info: result ? (
+      <>
+        <strong>login success!</strong>
+        <div>{`hi, ${user.name}`}</div>
+      </>
+    ) : (
+      <strong>login failed!</strong>
+    ),
+    color: result ? COLOR.INFO : COLOR.DANGER,
+  }
+
+  return <Notification onBack={onBack} {...notiFinalProps} />
 }

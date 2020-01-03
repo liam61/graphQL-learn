@@ -89,6 +89,6 @@ mutation {
 
 - [x] apollo client + react hooks
 
-- [ ] 父组件使用 mobx 管理受控的 input 子组件
+- [x] 父组件使用 mobx 管理受控的 input 子组件
 
 - [ ] graphql 语法 generate ts
