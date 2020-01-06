@@ -8,7 +8,7 @@ import React, {
   useRef,
 } from 'react'
 import { FieldRef, FieldType } from 'client/types'
-import { GENDER } from 'common/types'
+import { Gender as GENDER } from 'common/types'
 import { isEmpty } from 'client/utils'
 
 export type GenderType = 'MALE' | 'FEMALE'
@@ -78,9 +78,9 @@ export const Gender = forwardRef<FieldRef, GenderProps>(function _Gender(props, 
           <input
             {...restProps}
             ref={maleRef}
-            data-id={GENDER.MALE}
+            data-id={GENDER.Male}
             type="radio"
-            checked={finalValue === GENDER.MALE}
+            checked={finalValue === GENDER.Male}
             onChange={handleChange}
             onFocus={handleFocus}
             disabled={disabled}
@@ -91,9 +91,9 @@ export const Gender = forwardRef<FieldRef, GenderProps>(function _Gender(props, 
           <input
             {...restProps}
             ref={femaleRef}
-            data-id={GENDER.FEMALE}
+            data-id={GENDER.Female}
             type="radio"
-            checked={finalValue === GENDER.FEMALE}
+            checked={finalValue === GENDER.Female}
             onChange={handleChange}
             disabled={disabled}
           />

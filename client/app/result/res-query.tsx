@@ -2,7 +2,7 @@ import React from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import { Gender } from '~/components/gender'
 import { getUserList } from '~/graphql/user'
-import { Filter, Payload, QueryResult } from 'common/types'
+import { QueryResult, QueryUserListArgs } from 'common/types'
 import { ResultProps, COLOR } from 'client/types'
 import { isEmpty } from 'client/utils'
 import { Notification } from '~/components/notification'
@@ -31,7 +31,7 @@ interface ResQueryProps extends ResultProps {}
 
 export function ResQuery(props: ResQueryProps) {
   const { formData, onBack } = props
-  const { loading, error, data } = useQuery<{ userList: QueryResult }, Payload<Filter>>(
+  const { loading, error, data } = useQuery<{ userList: QueryResult }, QueryUserListArgs>(
     getUserList,
     {
       variables: {

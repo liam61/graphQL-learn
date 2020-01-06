@@ -3,8 +3,18 @@ import { useMutation } from '@apollo/react-hooks'
 import { addUser, updateUser, deleteUser } from '~/graphql/user'
 import { TAB } from '~/components/tabs'
 import { Notification } from '~/components/notification'
-import { AddResult, Payload, UpdateResult, UpdateType, DeleteResult } from 'common/types'
-import { ResultProps, SerializedValue, COLOR } from 'client/types'
+import {
+  AddResult,
+  UpdateResult,
+  DeleteResult,
+  MutationUpdateUserArgs,
+  MutationAddUserArgs,
+} from 'common/types'
+import { ResultProps, COLOR } from 'client/types'
+
+interface MutationRequest<T = any> extends Promise<T> {
+  resultKey?: string
+}
 
 interface ResMutationProps extends ResultProps {
   type: TAB
@@ -13,43 +23,49 @@ interface ResMutationProps extends ResultProps {
 export function ResMutation(props: ResMutationProps) {
   const { formData, type, onBack } = props
   const [isSuccess, setSuccess] = useState<boolean>(undefined)
-  const [add] = useMutation<{ addUser: AddResult }, Payload<SerializedValue>>(addUser)
-  const [update] = useMutation<{ updateUser: UpdateResult }, UpdateType>(updateUser)
+  const [add] = useMutation<{ addUser: AddResult }, MutationAddUserArgs>(addUser)
+  const [update] = useMutation<{ updateUser: UpdateResult }, MutationUpdateUserArgs>(updateUser)
   const [_delete] = useMutation<{ deleteUser: DeleteResult }, { name: string }>(deleteUser)
 
   useEffect(() => {
+    let request: MutationRequest = null
     switch (type) {
       case TAB.ADD:
-        add({
+        request = add({
           variables: {
-            payload: formData,
+            payload: formData as any,
           },
-        }).then(({ data }) => {
-          setSuccess(data.addUser.result)
         })
+        request.resultKey = 'addUser'
         break
       case TAB.UPDATE:
         const { prevName, ...rest } = formData
-        update({
+        request = update({
           variables: {
             name: prevName + '',
             payload: rest,
           },
-        }).then(({ data }) => {
-          setSuccess(data.updateUser.result)
         })
+        request.resultKey = 'updateUser'
         break
       case TAB.DELETE:
         const { name } = formData
-        _delete({
+        request = _delete({
           variables: {
             name: name + '',
           },
-        }).then(({ data }) => {
-          setSuccess(data.deleteUser.result)
         })
+        request.resultKey = 'deleteUser'
         break
     }
+
+    request
+      .then(({ data }) => {
+        setSuccess(data[request.resultKey].result)
+      })
+      .catch(_err => {
+        setSuccess(false)
+      })
   }, [type])
 
   const notiProps = {

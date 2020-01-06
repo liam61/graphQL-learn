@@ -3,21 +3,18 @@ import { useQuery } from '@apollo/react-hooks'
 import { userLogin } from '~/graphql/user'
 import { ResultProps, COLOR } from 'client/types'
 import { Notification } from '~/components/notification'
-import { Payload, LoginResult, LoginPayload } from 'common/types'
+import { LoginResult, QueryLoginArgs } from 'common/types'
 
 interface ResLoginProps extends ResultProps {}
 
 export function ResLogin(props: ResLoginProps) {
   const { formData, onBack } = props
-  const { loading, data, error } = useQuery<{ login: LoginResult }, Payload<LoginPayload>>(
-    userLogin,
-    {
-      variables: {
-        payload: formData as any,
-      },
-      fetchPolicy: 'network-only',
+  const { loading, data, error } = useQuery<{ login: LoginResult }, QueryLoginArgs>(userLogin, {
+    variables: {
+      payload: formData as any,
     },
-  )
+    fetchPolicy: 'network-only',
+  })
 
   if (loading || error) {
     const notiProps = {

@@ -1,0 +1,8 @@
+schema: server/models/**/schema.ts
+generates:
+  common/types.ts:
+    config:
+      declarationKind: interface
+      skipTypename: true
+    plugins:
+      - typescript

@@ -23,4 +23,3 @@ packages/*/lib
 
 # cache
 .cache
-*.bak

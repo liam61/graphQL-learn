@@ -1,61 +1,101 @@
-import { Document } from 'mongoose'
-
-export interface Payload<T> {
-  payload: T
-}
-
-export interface BaseResult {
-  result: boolean
-}
-
-export interface UserType extends Document {
-  name: string
-  gender?: GENDER
-  age?: number
-}
-
-export enum GENDER {
-  MALE = 'MALE',
-  FEMALE = 'FEMALE',
-}
-
-export interface Filter {
-  name?: string
-  gender?: GENDER
-  age?: number
-}
-
-export interface QueryResult extends BaseResult {
-  data: UserType[]
-}
-
-export interface LoginPayload {
-  name: string
-  password: string
-}
-
-export interface LoginResult extends BaseResult {
-  data?: UserType
+export type Maybe<T> = T | null
+/** All built-in and custom scalars, mapped to their actual values */
+export interface Scalars {
+  ID: string
+  String: string
+  Boolean: boolean
+  Int: number
+  Float: number
 }
 
 export interface AddPayload {
-  name: string
-  password: string
-  gender?: GENDER
-  age?: number
+  name: Scalars['String']
+  password: Scalars['String']
+  gender?: Maybe<Gender>
+  age?: Maybe<Scalars['Int']>
 }
 
-export interface AddResult extends BaseResult {
-  data: UserType
+export interface AddResult {
+  result: Scalars['Boolean']
+  data?: Maybe<User>
 }
 
-export interface DeleteResult extends BaseResult {}
-
-export interface UpdateType {
-  name: string
-  payload: Filter
+export interface DeleteResult {
+  result: Scalars['Boolean']
 }
 
-export interface UpdateResult extends BaseResult {
-  data?: UserType
+export interface Filter {
+  name?: Maybe<Scalars['String']>
+  gender?: Maybe<Gender>
+  age?: Maybe<Scalars['Int']>
+}
+
+export enum Gender {
+  Male = 'MALE',
+  Female = 'FEMALE',
+}
+
+export interface LoginPayload {
+  name: Scalars['String']
+  password: Scalars['String']
+}
+
+export interface LoginResult {
+  result: Scalars['Boolean']
+  data?: Maybe<User>
+}
+
+export interface Mutation {
+  addUser: AddResult
+  deleteUser: DeleteResult
+  updateUser: UpdateResult
+}
+
+export interface MutationAddUserArgs {
+  payload: AddPayload
+}
+
+export interface MutationDeleteUserArgs {
+  name: Scalars['String']
+}
+
+export interface MutationUpdateUserArgs {
+  name: Scalars['String']
+  payload: UpdatePayload
+}
+
+export interface Query {
+  userList: QueryResult
+  login: LoginResult
+}
+
+export interface QueryUserListArgs {
+  payload?: Maybe<Filter>
+}
+
+export interface QueryLoginArgs {
+  payload: LoginPayload
+}
+
+export interface QueryResult {
+  result: Scalars['Boolean']
+  data: Array<Maybe<User>>
+}
+
+export interface UpdatePayload {
+  name?: Maybe<Scalars['String']>
+  gender?: Maybe<Gender>
+  age?: Maybe<Scalars['Int']>
+}
+
+export interface UpdateResult {
+  result: Scalars['Boolean']
+  data?: Maybe<User>
+}
+
+export interface User {
+  name: Scalars['String']
+  /** password: String 该字段不显示和操作 */
+  gender?: Maybe<Gender>
+  age?: Maybe<Scalars['Int']>
 }

@@ -2,6 +2,14 @@
 
 ## usage
 
+### 一、bootstrap
+
+- client: `yarn start`
+
+- server: `yarn server`
+
+### 二、graphql
+
 1. query
 
 ```js
@@ -91,4 +99,4 @@ mutation {
 
 - [x] 父组件使用 mobx 管理受控的 input 子组件
 
-- [ ] graphql 语法 generate ts
+- [x] graphql 语法 generate ts
