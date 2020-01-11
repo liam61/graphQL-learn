@@ -95,7 +95,7 @@ export interface UpdateResult {
 
 export interface User {
   name: Scalars['String']
-  /** password: String 该字段不显示和操作 */
+  password?: Maybe<Scalars['String']>
   gender?: Maybe<Gender>
   age?: Maybe<Scalars['Int']>
 }

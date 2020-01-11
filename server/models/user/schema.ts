@@ -3,7 +3,7 @@ import { gql } from 'apollo-server-express'
 export const typeDefs = gql`
   type User {
     name: String!
-    # password: String 该字段不显示和操作
+    password: String # 该字段不显示和操作
     gender: Gender
     age: Int
   }
