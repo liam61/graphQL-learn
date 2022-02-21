@@ -37,7 +37,7 @@ export function ResQuery(props: ResQueryProps) {
       variables: {
         payload: formData,
       },
-      fetchPolicy: 'network-only',
+      // fetchPolicy: 'network-only',
     },
   )
 

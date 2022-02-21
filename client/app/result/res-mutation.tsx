@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useMutation } from '@apollo/react-hooks'
-import { addUser, updateUser, deleteUser } from '~/graphql/user'
+import { addUser, updateUser, deleteUser, getUserList } from '~/graphql/user'
 import { TAB } from '~/components/tabs'
 import { Notification } from '~/components/notification'
 import {
@@ -9,6 +9,7 @@ import {
   DeleteResult,
   MutationUpdateUserArgs,
   MutationAddUserArgs,
+  QueryResult,
 } from 'common/types'
 import { ResultProps, COLOR } from 'client/types'
 
@@ -23,7 +24,22 @@ interface ResMutationProps extends ResultProps {
 export function ResMutation(props: ResMutationProps) {
   const { formData, type, onBack } = props
   const [isSuccess, setSuccess] = useState<boolean>(undefined)
-  const [add] = useMutation<{ addUser: AddResult }, MutationAddUserArgs>(addUser)
+  const [add] = useMutation<{ addUser: AddResult }, MutationAddUserArgs>(addUser, {
+    // NOTE: 每个 mutation 都需要自己添加 update 函数
+    update: (cache, { data: newUser }) => {
+      if (!newUser.addUser.result) return
+      const data = cache.readQuery<{ userList: QueryResult }>({
+        query: getUserList,
+        variables: { payload: {} },
+      })
+      data.userList.data.push(newUser.addUser.data)
+
+      cache.writeQuery({
+        query: getUserList,
+        data,
+      })
+    },
+  })
   const [update] = useMutation<{ updateUser: UpdateResult }, MutationUpdateUserArgs>(updateUser)
   const [_delete] = useMutation<{ deleteUser: DeleteResult }, { name: string }>(deleteUser)
 
@@ -63,7 +79,8 @@ export function ResMutation(props: ResMutationProps) {
       .then(({ data }) => {
         setSuccess(data[request.resultKey].result)
       })
-      .catch(_err => {
+      .catch(err => {
+        console.log(err)
         setSuccess(false)
       })
   }, [type])
